@@ -21,18 +21,6 @@ Created on Tue May 28 10:33:16 2024
     '''
 
 
-import matplotlib.pyplot as plt
-import ephem
-import datetime
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import pickle
-
-import load_messenger_mag as load_messenger_mag
-
-
 '''
 Load list if already saved in pickle
 '''
@@ -41,6 +29,15 @@ Load list if already saved in pickle
 # with open('df_s.p', 'rb') as f:
 #     df_sun = pickle.load(f)
 
+import matplotlib.pyplot as plt
+import ephem
+import datetime
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import pickle
+import load_messenger_mag as load_messenger_mag
 philpott_file = '/home/adam/Desktop/DIAS/MESSENGER/MESSENGER_Boundary_Testing/jgra55678-sup-0002-table_si-s01.csv'
 
 
@@ -827,234 +824,247 @@ def plot_distance_from_nominal(df):
     # plt.xlim(15100,15300)
 
 
-
-
-
-def mag_time_series(date_string,res="01",full=False,FIPS=False):
+def mag_time_series(date_string, res="01", full=False, FIPS=False):
     '''
     Plot timeseries of B fields in 3-axis with 2015 mag data
     WIP: to add ability to select start and end time
     '''
 
-    time, mag, magamp, eph = load_messenger_mag.load_MESSENGER_into_tplot(date_string,res,full,FIPS)
+    time, mag, magamp, eph = load_messenger_mag.load_MESSENGER_into_tplot(
+        date_string, res, full, FIPS)
 
     fig, axs = plt.subplots(5, sharex=True)
 
-    #fig.set_size_inches(10,12)
-    
+    # fig.set_size_inches(10,12)
+
     plt.xlabel(f"Date: {date_string}")
 
     axs[0].set_ylabel("$B_x$ (nT)", fontsize=12)
-    axs[0].plot(time,mag[:,0], linewidth=0.8)
+    axs[0].plot(time, mag[:, 0], linewidth=0.8)
 
     axs[1].set_ylabel("$B_y$ (nT)", fontsize=12)
-    axs[1].plot(time,mag[:,1], linewidth=0.8)
+    axs[1].plot(time, mag[:, 1], linewidth=0.8)
 
     axs[2].set_ylabel("$B_z$ (nT)", fontsize=12)
-    axs[2].plot(time,mag[:,2], linewidth=0.8)
+    axs[2].plot(time, mag[:, 2], linewidth=0.8)
 
     axs[3].set_ylabel("|B| (nT)", fontsize=12)
-    axs[3].plot(time,magamp, linewidth=0.8)
+    axs[3].plot(time, magamp, linewidth=0.8)
 
     axs[4].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     axs[4].set_ylabel("(nT)", fontsize=12)
-    axs[4].plot(time,mag[:,0], linewidth=0.8, label='$B_x$')
-    axs[4].plot(time,mag[:,1], linewidth=0.8, label='$B_y$')
-    axs[4].plot(time,mag[:,2], linewidth=0.8, label='$B_z$')
-    axs[4].plot(time,magamp, linewidth=0.8, label='|B|')
+    axs[4].plot(time, mag[:, 0], linewidth=0.8, label='$B_x$')
+    axs[4].plot(time, mag[:, 1], linewidth=0.8, label='$B_y$')
+    axs[4].plot(time, mag[:, 2], linewidth=0.8, label='$B_z$')
+    axs[4].plot(time, magamp, linewidth=0.8, label='|B|')
     axs[4].legend()
 
-def all_mag_time_series(date_string,res="01",full=False,FIPS=False):
-    
+
+def all_mag_time_series(date_string, res="01", full=False, FIPS=False):
     '''
     Function to plot all B fields for a given time on one plot
     '''
 
-    time, mag, magamp, eph = load_messenger_mag.load_MESSENGER_into_tplot(date_string,res,full,FIPS)
+    time, mag, magamp, eph = load_messenger_mag.load_MESSENGER_into_tplot(
+        date_string, res, full, FIPS)
 
-    fig = plt.figure(figsize = (10,6))
+    fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(111)
 
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     ax.set_ylabel("(nT)", fontsize=16)
-    ax.plot(time,mag[:,0], linewidth=0.8, label='$B_x$')
-    ax.plot(time,mag[:,1], linewidth=0.8, label='$B_y$')
-    ax.plot(time,mag[:,2], linewidth=0.8, label='$B_z$')
-    ax.plot(time,magamp, linewidth=0.8, label='|B|')
+    ax.plot(time, mag[:, 0], linewidth=0.8, label='$B_x$')
+    ax.plot(time, mag[:, 1], linewidth=0.8, label='$B_y$')
+    ax.plot(time, mag[:, 2], linewidth=0.8, label='$B_z$')
+    ax.plot(time, magamp, linewidth=0.8, label='|B|')
     ax.legend()
 
 
-#Breakinf lists into 2 dif types, identifying difference betweem starts
-#times and ploting histogram
-def compare_lists(df,df_p, plot = False):
-    
-    #df = df[df.index > 14800]
-    #df_p = df_p[df_p.index < 1600]
+# Breakinf lists into 2 dif types, identifying difference betweem starts
+# times and ploting histogram
+def compare_lists(df, df_p, plot=False):
+
+    # df = df[df.index > 14800]
+    # df_p = df_p[df_p.index < 1600]
 
     def split(df):
         df_mp = df[(df.Type == 'mp_in') | (df.Type == 'mp_out')]
         df_bs = df[(df.Type == 'bs_in') | (df.Type == 'bs_out')]
-        return df_mp,df_bs
+        return df_mp, df_bs
 
-    df_mp,df_bs = split(df)
-    df_p_mp,df_p_bs = split(df_p)
+    df_mp, df_bs = split(df)
+    df_p_mp, df_p_bs = split(df_p)
 
-    def find_partner(df,df_p):
-        min_start=[]
-        min_end=[]
-        min_diff=[]
+    def find_partner(df, df_p):
+        min_start = []
+        min_end = []
+        min_diff = []
         #!!!Weird behaviour here?!!!
         for i in df.start:
             df_temp = (df_p.start - i).abs()
-            min_index = df_temp.idxmin() 
-            
+            min_index = df_temp.idxmin()
+
             min_start.append(df_p.loc[min_index, 'start'])
             min_end.append(df_p.loc[min_index, 'end'])
             min_diff.append(df_temp[min_index].total_seconds())
 
-        #print(df_temp)
-        #Find this min index and append horizontally to sun df
+        # print(df_temp)
+        # Find this min index and append horizontally to sun df
         df["startP"] = min_start
         df['endP'] = min_end
         df['startDif'] = min_diff
-        
+
         df['Flag'] = 0
 
-        #Set 'Flag' to 1 where there is no overlap between the crossings
+        # Set 'Flag' to 1 where there is no overlap between the crossings
         x = df.index[~(((df['start'] >= df['startP'])
                         & (df['start'] <= df['endP'])) | ((df['end'] >= df['startP'])
-                        & (df['end'] <= df['endP'])) | ((df['startP'] >= df['start'])
-                        & (df['startP'] <= df['end'])) | ((df['endP'] >= df['start'])
-                        & (df['endP'] <= df['end'])))]
-        
+                                                          & (df['end'] <= df['endP'])) | ((df['startP'] >= df['start'])
+                                                                                          & (df['startP'] <= df['end'])) | ((df['endP'] >= df['start'])
+                                                                                                                            & (df['endP'] <= df['end'])))]
+
         df.loc[df.index.isin(x), 'Flag'] = 1
 
         # Set 'Flag' to 2 where 'startDif' is greater than or equal to 3600
         df.loc[df['startDif'] >= 3600, 'Flag'] = 2
         extreme_count = df.loc[df.Flag == 2, 'Flag'].count()
-        print("EXTREME:",extreme_count)
+        print("EXTREME:", extreme_count)
 
-        #Set 'Flag' to 3 when orbit disagrees by just a few minutes (10 minutes)
+        # Set 'Flag' to 3 when orbit disagrees by just a few minutes (10 minutes)
         df.loc[(df['startDif'] >= 600) & (df['Flag'] == 1), 'Flag'] = 3
 
         return df
-    
-    df_part_mp = find_partner(df_mp,df_p_mp)
-    df_part_bs = find_partner(df_bs,df_p_bs)
+
+    df_part_mp = find_partner(df_mp, df_p_mp)
+    df_part_bs = find_partner(df_bs, df_p_bs)
     if plot == True:
-        #print(np.max(df_part_mp_in))
-        bins=120
-        plt.hist(df_part_mp.startDif,bins,range=[0,3610],alpha=0.5,label='MP',color='k')
-        plt.hist(df_part_bs.startDif,bins,range=[0,3610],alpha=0.5,label='BS',color='r',ls='--',histtype='step')
+        # print(np.max(df_part_mp_in))
+        bins = 120
+        plt.hist(df_part_mp.startDif, bins, range=[
+                 0, 3610], alpha=0.5, label='MP', color='k')
+        plt.hist(df_part_bs.startDif, bins, range=[
+                 0, 3610], alpha=0.5, label='BS', color='r', ls='--', histtype='step')
 
         plt.legend()
-        #plt.ylim(0,100)
+        # plt.ylim(0,100)
         plt.yscale('log')
-        plt.xlim(0,3700)
+        plt.xlim(0, 3700)
         plt.xlabel('Time between start (s)')
-    
 
+    return df_part_bs, df_part_mp
 
-    return df_part_bs,df_part_mp
-
-#Check where crossings have no overlap looking at partner list created above
-def crossing_disagree(df,t):
-    #df is partnered list, t is max time diff between crossing pair in seconds
+# Check where crossings have no overlap looking at partner list created above
+def crossing_disagree(df, t):
+    # df is partnered list, t is max time diff between crossing pair in seconds
     x = df.index[~(((df['start'] >= df['startP'])
-                        & (df['start'] <= df['endP'])) | ((df['end'] >= df['startP'])
-                        & (df['end'] <= df['endP'])) | ((df['startP'] >= df['start'])
-                        & (df['startP'] <= df['end'])) | ((df['endP'] >= df['start'])
-                        & (df['endP'] <= df['end'])))]
-    #print(x)
+                    & (df['start'] <= df['endP'])) | ((df['end'] >= df['startP'])
+                                                      & (df['end'] <= df['endP'])) | ((df['startP'] >= df['start'])
+                                                                                      & (df['startP'] <= df['end'])) | ((df['endP'] >= df['start'])
+                                                                                                                        & (df['endP'] <= df['end'])))]
+    # print(x)
     df_disagree = df[df.index.isin(x)]
 
-    #Find largest disagreement as difference between average time?
+    # Find largest disagreement as difference between average time?
     def AvgDateDif(df):
         avg_date = (df[['start', 'end']].mean(axis=1))
         avg_dateP = (df[['startP', 'endP']].mean(axis=1))
-        df = df.assign(AvgDateDiff=(avg_date-avg_dateP).abs().dt.total_seconds())
+        df = df.assign(AvgDateDiff=(
+            avg_date-avg_dateP).abs().dt.total_seconds())
         return df
 
     df = AvgDateDif(df_disagree)
     print(len(df))
-    df = df.loc[df['AvgDateDiff']<t]
+    df = df.loc[df['AvgDateDiff'] < t]
     print(len(df))
     largest10 = df.nlargest(10, 'AvgDateDiff')
-    
-    return largest10[['start','end','startP','endP','AvgDateDiff']]
+
+    return largest10[['start', 'end', 'startP', 'endP', 'AvgDateDiff']]
+
 
 def orbits_without_bs(df):
-    prev='mp'
-    j=0
-    x=[]
+    prev = 'mp'
+    j = 0
+    x = []
     for i in df['Type']:
         if i == ('mp_out'):
-            current='mp'
+            current = 'mp'
             if current == prev:
                 x.append(j)
-            prev='mp'
+            prev = 'mp'
         elif i.startswith('bs'):
-            prev='bs'
-        j+=1
+            prev = 'bs'
+        j += 1
     print(len(x))
     df_no_bs = df[df.index.isin(x)]
 
     return df_no_bs
 
-#Plotting histograms of MP crossing intervals, Seperate = True seperates in and out
-def crossing_duration(df,df_sun, seperate=False):
-    
+# Plotting histograms of MP crossing intervals, Seperate = True seperates in and out
+def crossing_duration(df, df_sun, seperate=False):
+
     df['Interval'] = (df.end-df.start).dt.total_seconds()
-   
-    df_sun['Interval'] = (df_sun.end-df_sun.start).dt.total_seconds() 
-    
-    bins=100
+
+    df_sun['Interval'] = (df_sun.end-df_sun.start).dt.total_seconds()
+
+    bins = 100
     if seperate == True:
         df_mp_in = df[(df.Type == 'mp_in')]
         df_mp_out = df[(df.Type == 'mp_out')]
         df2_mp_in = df_sun[(df_sun.Type == 'mp_in')]
         df2_mp_out = df_sun[(df_sun.Type == 'mp_out')]
 
-        plt.hist(df_mp_in.Interval,bins,alpha=0.5,label=f'p_mp_in: n = {len(df_mp_in)}',color='k', histtype='step')
-        plt.hist(df_mp_out.Interval,bins,alpha=0.5,label=f'p_mp_out: n = {len(df_mp_out)}',color='b')
-        plt.hist(df2_mp_in.Interval,bins,alpha=0.5,label=f'sun_mp_in: n = {len(df2_mp_in)}',color='darkred',histtype='step')
-        plt.hist(df2_mp_out.Interval,bins,alpha=0.5,label=f's_mp_out: n = {len(df2_mp_out)}',color='yellow')
+        plt.hist(df_mp_in.Interval, bins, alpha=0.5, label=f'p_mp_in: n = {
+                 len(df_mp_in)}', color='k', histtype='step')
+        plt.hist(df_mp_out.Interval, bins, alpha=0.5,
+                 label=f'p_mp_out: n = {len(df_mp_out)}', color='b')
+        plt.hist(df2_mp_in.Interval, bins, alpha=0.5, label=f'sun_mp_in: n = {
+                 len(df2_mp_in)}', color='darkred', histtype='step')
+        plt.hist(df2_mp_out.Interval, bins, alpha=0.5,
+                 label=f's_mp_out: n = {len(df2_mp_out)}', color='yellow')
         plt.legend()
         plt.yscale('log')
-        #plt.xlim(0,3700)
+        # plt.xlim(0,3700)
         plt.xlabel('Duration of crossing (s)')
     else:
-        df_mp=df[(df.Type == 'mp_in') | (df.Type == 'mp_out')]
-        df_sun_mp=df_sun[(df_sun.Type == 'mp_in') | (df_sun.Type == 'mp_out')]
+        df_mp = df[(df.Type == 'mp_in') | (df.Type == 'mp_out')]
+        df_sun_mp = df_sun[(df_sun.Type == 'mp_in') |
+                           (df_sun.Type == 'mp_out')]
         ymax = df_sun.Interval.max()
-        plt.hist(df_mp.Interval,bins,alpha=0.5,label=f'p_mp: n = {len(df_mp)}',color='k', histtype='step')
-        plt.hist(df_sun_mp.Interval,bins,alpha=0.5,label=f'sun_mp: n = {len(df_sun_mp)}',color='red')
+        plt.hist(df_mp.Interval, bins, alpha=0.5, label=f'p_mp: n = {
+                 len(df_mp)}', color='k', histtype='step')
+        plt.hist(df_sun_mp.Interval, bins, alpha=0.5,
+                 label=f'sun_mp: n = {len(df_sun_mp)}', color='red')
         mean_p = df_mp.Interval.mean()
         mean_sun = df_sun_mp.Interval.mean()
-        plt.vlines(mean_p,ymin=0,ymax=ymax, linestyles='--', colors='k', label=f'P Mean = {mean_p:.1f}')
-        plt.vlines(mean_sun,ymin=0,ymax=ymax, linestyles='--',colors='red', label= f'Sun Mean = {mean_sun:.1f}')
+        plt.vlines(mean_p, ymin=0, ymax=ymax, linestyles='--',
+                   colors='k', label=f'P Mean = {mean_p:.1f}')
+        plt.vlines(mean_sun, ymin=0, ymax=ymax, linestyles='--',
+                   colors='red', label=f'Sun Mean = {mean_sun:.1f}')
         plt.legend()
         plt.yscale('log')
-        #plt.xlim(0,3700)
+        # plt.xlim(0,3700)
         plt.xlabel('Duration of crossing (s)')
+
 
 def orbits(df):
     '''
     Assign orbit number to each crossing. Calling 1 orbit bs_in to bs_out, assuming not every orbit has bs but has mp_in.
     '''
-    orbit_number = -1
-    counter=0
     df['OrbitNumber'] = 0
+    orbit_number = -1
     for i in df.index:
         if df.Type[i] == "mp_in":
-            orbit_number +=1
+            orbit_number += 1
             if df.Type[i-1] == 'bs_in':
-                df['OrbitNumber'][i-1] = orbit_number
-        df['OrbitNumber'][i] = orbit_number
-
+                df.loc[i-1,'OrbitNumber'] = orbit_number
+        if orbit_number == -1:
+            df.loc[i,'OrbitNumber'] = orbit_number+1
+        else:
+            df.loc[i,'OrbitNumber'] = orbit_number
     return orbit_number
 
-#Returns an array of number of crossings per orbit, need to run df through orbits first
+
+# Returns an array of number of crossings per orbit, need to run df through orbits first
 def orbit_crossings(df):
     NumCrossings = []
     counter = 0
@@ -1065,13 +1075,40 @@ def orbit_crossings(df):
             if df.OrbitNumber[i] != df.OrbitNumber[i-1]:
                 NumCrossings.append(counter)
                 counter = 0
-                counter +=1
+                counter += 1
             else:
                 counter += 1
     NumCrossings = np.asarray(NumCrossings)
-    #Print orbit number where there is not 4 crossings
-    print(np.where(NumCrossings!=4))
+    # Print orbit number where there is not 4 crossings
+    print(np.where(NumCrossings != 4))
     return NumCrossings
+
+def time_in_sheath(df,df_sun):
+    '''Histogram of time in sheath durations: run df through orbits first''' 
+    #mp_out(end)-bs_out(start)
+    #bs_in(end)-mp_in(start)
+
+    def sheath(df):
+        Dur_out=[]
+        Dur_in = []
+        for i in df.index[:-1]:
+            if df.Type[i] == 'mp_out' and df.Type[i+1] == 'bs_out':
+                Dur_out.append((df.start[i+1]-df.end[i]).total_seconds())
+            elif df.Type[i] == 'bs_in' and df.Type[i+1] == 'mp_in':
+                Dur_in.append((df.start[i+1]-df.end[i]).total_seconds())
+        return Dur_in,Dur_out
+    Dur_in_p, Dur_out_p = sheath(df)
+    Dur_in_s, Dur_out_s = sheath(df_sun)
+    bins = 100
+    plt.hist(Dur_in_p, bins=bins, alpha=0.5,label='Sheath_in_p',color='k',histtype='step')
+    plt.hist(Dur_out_p, bins=bins,alpha=0.5,label='Sheath_out_p',color='b',histtype='step')
+    plt.hist(Dur_in_s, bins=bins, alpha=0.5,label='Sheath_in_s',color='orange',histtype='step')
+    plt.hist(Dur_out_s, bins=bins,alpha=0.5,label='Sheath_out_s',color='darkred',histtype='step')
+    plt.legend()
+    #plt.yscale('log')
+    plt.xlabel('Duration of time in sheath (s)')
+    return 
+
 
 
 # def compare_boundaries(df1, df2, dt=30):
@@ -1081,7 +1118,7 @@ def orbit_crossings(df):
 #     How to implement?
 #     Find events with approx same start time
 #     Find difference in x_msm and rho_msm
-#     Find events identified in one list but not the other 
+#     Find events identified in one list but not the other
 #     '''
 #     #First plot all events identified in one list but not the other
 #     df1 = df1[df1["start"].index < 16000]
@@ -1102,9 +1139,9 @@ def orbit_crossings(df):
 #             print(f"{j}/{len(df1["start"])}", end = '\r')
 #         print(temp)
 #         df2_only = df2[df2.index.isin(temp)]
-    
+
 #         return df2_only
-    
+
 #     #Alt method: check if crossing occurs within one from other list
 #     def only_one_df_2(df1,df2):
 #         temp=[]
@@ -1122,9 +1159,9 @@ def orbit_crossings(df):
 #             print(f"{j}/{len(df1["start"])}", end = '\r')
 #         print(temp)
 #         df1_only = df1[df1.index.isin(temp)]
-    
+
 #         return df1_only
-    
+
 #     df1_only = only_one_df(df2,df1)
 #     df2_only = only_one_df(df1,df2)
 
@@ -1152,9 +1189,9 @@ def orbit_crossings(df):
 #     df1_both = df1_merge[df1_merge['_merge'] == 'left_only'].drop(columns=['_merge'])
 #     df2_merge = df2.merge(df2_only,how='left',indicator=True)
 #     df2_both = df2_merge[df2_merge['_merge'] == 'left_only'].drop(columns=['_merge'])
-    
+
 #     df1_both=df1_both.reset_index()
 #     df2_both=df2_both.reset_index()
 #     print(df1_both['start']-df2_both['start'])
-    
+
 #     return
